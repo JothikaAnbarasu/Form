@@ -7,13 +7,13 @@ import { indianStates } from './constant.js';
 import { registerSchema } from './helper';
 import { IoIosCheckmarkCircle } from 'react-icons/io'
 import { MdError } from 'react-icons/md'
-import {PiWarningFill} from 'react-icons/pi'
+import { PiWarningFill } from 'react-icons/pi'
 
 
 function App() {
   const [isSuccessToastOoen, setIsSuccessToastOpen] = useState(false);
   const [isFailureToastOpen, setIsFailureToastOpen] = useState(false);
-  const [isWarningToastOpen , setIsWarningToastOpen] = useState(false);
+  const [isWarningToastOpen, setIsWarningToastOpen] = useState(false);
 
   const initialValuesFromStorage = JSON.parse(localStorage.getItem('formValues')) || {
     firstName: '',
@@ -40,50 +40,49 @@ function App() {
 
   useEffect(() => {
     localStorage.setItem('formValues', JSON.stringify(formik.values));
-   
   }, [formik.values])
 
 
-  const handleSubmit = ()=>{
- 
-   const notTouchedAnyField = Object.values(initialValuesFromStorage).every((value)=> value==="" || value === false);
-   console.log(initialValuesFromStorage);
-   console.log(notTouchedAnyField);
-   if(notTouchedAnyField){
-    setIsWarningToastOpen(true);
-    setTimeout(()=>{
-      setIsWarningToastOpen(false);
-    },3000)
-   }
+  const handleSubmit = () => {
 
-    if( formik.errors || formik.isSubmitting ){
+    const notTouchedAnyField = Object.values(initialValuesFromStorage).every((value) => value === "" || value === false);
+    console.log(initialValuesFromStorage);
+    console.log(notTouchedAnyField);
+    if (notTouchedAnyField) {
+      setIsWarningToastOpen(true);
+      setTimeout(() => {
+        setIsWarningToastOpen(false);
+      }, 3000)
+    }
+
+    if (formik.errors || formik.isSubmitting) {
       setIsFailureToastOpen(true);
-      setTimeout(()=>{
-       setIsFailureToastOpen(false);
-      },3000)
-       }
+      setTimeout(() => {
+        setIsFailureToastOpen(false);
+      }, 3000)
+    }
 
-     
+
   }
 
   return (
     <div className='App flex flex-row justify-center items-center h-[100vh] w-[100vw] py-14 bg-gradient-to-r from-sky-300 to-sky-100'>
 
       {isSuccessToastOoen &&
-        <div className=' flex items-center justify-center h-fit w-fit bg-white p-8  absolute top-1 rounded  text-green-600  border-green-600 border-b-4'>
+        <div className=' flex items-center justify-center h-fit w-fit bg-white p-4  absolute top-1 rounded  text-green-600  border-green-600 border-b-4'>
           <span className='mr-2 pt-1'><IoIosCheckmarkCircle /> </span> Form Submitted Successfully
         </div>}
 
       {isFailureToastOpen &&
-      <div className=' flex items-center justify-center h-fit w-fit bg-white p-8  absolute top-1 rounded  text-red-600  border-red-600 border-b-4'>
-        <span className='mr-2 pt-1'><MdError /> </span> Submission Failed
-      </div>}
+        <div className=' flex items-center justify-center h-fit w-fit bg-white p-4 absolute top-1 rounded  text-red-600  border-red-600 border-b-4'>
+          <span className='mr-2 pt-1'><MdError /> </span> Submission Failed
+        </div>}
 
-{isWarningToastOpen && 
-  <div className=' flex items-center justify-center h-fit w-fit bg-white p-8  absolute top-1 rounded  text-amber-400 border-amber-400 border-b-4'>
-        <span className='mr-2 pt-1'><PiWarningFill /> </span> Kindly fill the Form and Submit
-      </div>
-}
+      {isWarningToastOpen &&
+        <div className=' flex items-center justify-center h-fit w-fit bg-white p-4  absolute top-1 rounded  text-amber-400 border-amber-400 border-b-4'>
+          <span className='mr-2 pt-1'><PiWarningFill /> </span> Kindly fill the Form and Submit
+        </div>
+      }
       <div className='form-img-wrapper w- flex flex-row justify-around items-center bg-slate-100 rounded-lg shadow-md'>
 
         <div className='form-container w-11/12  h-2/4 flex justify-center items-center  '>
@@ -98,7 +97,7 @@ function App() {
             <div className='flex flex-row gap-2'>
               <div>
                 <label htmlFor='firstName' className='text-slate-600 font-semibold'>First Name : </label>
-                <input type='text' id="firstName" name="firstName" value={formik.values.firstName} onChange={formik.handleChange }
+                <input type='text' id="firstName" name="firstName" value={formik.values.firstName} onChange={formik.handleChange}
 
                   placeholder='First Name' className='mb-3 mt-1 px-4 py-2 border border-gray-300 rounded-md w-full focus:outline-teal-400 '></input>
 
