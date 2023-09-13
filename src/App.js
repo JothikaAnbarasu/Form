@@ -1,66 +1,112 @@
-import 'react-toastify/dist/ReactToastify.css';
-import { ToastContainer, toast } from 'react-toastify';
+
 import './App.css';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useFormik } from "formik";
-import { useState } from 'react';
 import { BiErrorCircle } from 'react-icons/bi'
 import { indianStates } from './constant.js';
 import { registerSchema } from './helper';
+import { IoIosCheckmarkCircle } from 'react-icons/io'
+import { MdError } from 'react-icons/md'
+import {PiWarningFill} from 'react-icons/pi'
 
 
 function App() {
+  const [isSuccessToastOoen, setIsSuccessToastOpen] = useState(false);
+  const [isFailureToastOpen, setIsFailureToastOpen] = useState(false);
+  const [isWarningToastOpen , setIsWarningToastOpen] = useState(false);
 
-  const [isSubmitted, setIsSubmitted] = useState(false);
-
-  const showToastMessage = () => {
-    toast.success('Form Submitted Successfully!', {
-      position: toast.POSITION.TOP_CENTER
-    });
+  const initialValuesFromStorage = JSON.parse(localStorage.getItem('formValues')) || {
+    firstName: '',
+    lastName: '',
+    phoneNo: '',
+    address: '',
+    state: '',
+    terms: false,
   };
-
- 
+  console.log(initialValuesFromStorage)
 
   const formik = useFormik({
-    initialValues: {
-      firstName: '',
-      lastName: '',
-      phoneNo: '',
-      address: '',
-      state: '',
-      terms: false,
-
-    },
+    initialValues: initialValuesFromStorage,
     validationSchema: registerSchema,
-    onSubmit: (values) => {
-      console.log(values);
-      showToastMessage();
-      setIsSubmitted(true);
-
+    onSubmit: () => {
+      setIsSuccessToastOpen(true);
+      setIsFailureToastOpen(false);
+      setTimeout(() => {
+        setIsSuccessToastOpen(false);
+      }, 3000)
     }
+
   })
 
+  useEffect(() => {
+    localStorage.setItem('formValues', JSON.stringify(formik.values));
+   
+  }, [formik.values])
 
+
+  const handleSubmit = ()=>{
+ 
+   const notTouchedAnyField = Object.values(initialValuesFromStorage).every((value)=> value==="" || value === false);
+   console.log(initialValuesFromStorage);
+   console.log(notTouchedAnyField);
+   if(notTouchedAnyField){
+    setIsWarningToastOpen(true);
+    setTimeout(()=>{
+      setIsWarningToastOpen(false);
+    },3000)
+   }
+
+    if( formik.errors || formik.isSubmitting ){
+      setIsFailureToastOpen(true);
+      setTimeout(()=>{
+       setIsFailureToastOpen(false);
+      },3000)
+       }
+
+     
+  }
 
   return (
     <div className='App flex flex-row justify-center items-center h-[100vh] w-[100vw] py-14 bg-gradient-to-r from-sky-300 to-sky-100'>
-      <ToastContainer />
 
+      {isSuccessToastOoen &&
+        <div className=' flex items-center justify-center h-fit w-fit bg-white p-8  absolute top-1 rounded  text-green-600  border-green-600 border-b-4'>
+          <span className='mr-2 pt-1'><IoIosCheckmarkCircle /> </span> Form Submitted Successfully
+        </div>}
+
+      {isFailureToastOpen &&
+      <div className=' flex items-center justify-center h-fit w-fit bg-white p-8  absolute top-1 rounded  text-red-600  border-red-600 border-b-4'>
+        <span className='mr-2 pt-1'><MdError /> </span> Submission Failed
+      </div>}
+
+{isWarningToastOpen && 
+  <div className=' flex items-center justify-center h-fit w-fit bg-white p-8  absolute top-1 rounded  text-amber-400 border-amber-400 border-b-4'>
+        <span className='mr-2 pt-1'><PiWarningFill /> </span> Kindly fill the Form and Submit
+      </div>
+}
       <div className='form-img-wrapper w- flex flex-row justify-around items-center bg-slate-100 rounded-lg shadow-md'>
 
         <div className='form-container w-11/12  h-2/4 flex justify-center items-center  '>
 
-          <form className='h-full w-96 py-4 px-6' onSubmit={formik.handleSubmit}
+          <form className='h-full w-96 py-4 px-6' onSubmit={(event) => {
+            event.preventDefault();
+            formik.handleSubmit();
+
+          }}
           >
 
             <div className='flex flex-row gap-2'>
               <div>
                 <label htmlFor='firstName' className='text-slate-600 font-semibold'>First Name : </label>
-                <input type='text' id="firstName" name="firstName" value={formik.values.firstName} onChange={formik.handleChange}
+                <input type='text' id="firstName" name="firstName" value={formik.values.firstName} onChange={formik.handleChange }
+
                   placeholder='First Name' className='mb-3 mt-1 px-4 py-2 border border-gray-300 rounded-md w-full focus:outline-teal-400 '></input>
 
                 {formik.touched.firstName && formik.errors.firstName && (
-                  <div className="text-red-500  text-xs -mt-1 mb-3 flex items-center"><span className='text-red-500 mr-1 ml-2'>{<BiErrorCircle />}</span> {formik.errors.firstName}</div>
+                  <>
+                    <div className="text-red-500  text-xs -mt-1 mb-3 flex items-center"><span className='text-red-500 mr-1 ml-2'>{<BiErrorCircle />}</span> {formik.errors.firstName}</div>
+
+                  </>
                 )}
               </div>
 
@@ -123,10 +169,11 @@ function App() {
               <div className="text-red-500  text-xs -mt-1 mb-3 flex items-center"><span className='text-red-500 mr-1 ml-2'>{<BiErrorCircle />}</span> {formik.errors.terms}</div>
             )}
             <div className='button-wrapper flex justify-center items-center px-5 mt-2'>
-              <button type='submit' className={`bg-primary text-white font-semibold py-2 px-4 rounded hover:bg-teal-400 text-center ${isSubmitted
+              <button type='submit' className={`bg-primary text-white font-semibold py-2 px-4 rounded hover:bg-teal-400 text-center ${formik.isSubmitting
                 ? 'opacity-50 cursor-not-allowed bg-teal-400'
                 : ''
-                }`} disabled={isSubmitted}>Register</button>
+                }`}
+                disabled={formik.isSubmitting} onClick={handleSubmit}>Register</button>
             </div>
 
           </form>
